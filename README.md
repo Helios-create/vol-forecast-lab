@@ -105,7 +105,7 @@ tests/                37 tests: validation rules, leakage, models/statistics, wa
 docs/                 EXECUTION.md (do this) | STUDY_GUIDE.md (understand this) | DESIGN.md (pre-registration)
 ```
 
-## Honest limitations (keep them in your own write-up)
+## Honest limitations
 * **Survivorship bias:** the 20 stocks are large caps *today*.
 * One market, one volatility proxy (range-based, daily data), one horizon.
 * Stocks are correlated, so per-stock significance tests are not independent.
