@@ -1,16 +1,16 @@
 # Volatility Forecasting Lab
 
-A PostgreSQL-backed data pipeline plus a leakage-free forecasting study.
+A Python-based volatility forecasting system
+with a PostgreSQL data pipeline, statistical
+benchmarking and machine learning models.
 
 > **Research question:** Can machine learning beat simple statistical benchmarks at forecasting
-> 5-day-ahead stock volatility of Indian large caps, under honest (leakage-free) evaluation, and where does it fail?
-
-It is built to demonstrate two skill sets in one repository:
+> 5-day-ahead stock volatility of Indian large caps, under leakage-free evaluation?
 
 | Data engineering | Data science |
 |---|---|
 | Python extraction with retries and per-ticker failure isolation | Volatility proxy, target and feature engineering in pandas |
-| Validation rules with a **rejects** table (nothing is silently dropped) | Naive, EWMA, HAR, GARCH and gradient-boosting models |
+| Validation rules with a **rejects** table (Rejected records are stored separately for inspection) | Naive, EWMA, HAR, GARCH and gradient-boosting models |
 | Idempotent PostgreSQL loads (`COPY` + `ON CONFLICT` upsert) | Walk-forward evaluation with a purge/embargo |
 | Linux cron scheduling, logging, exit codes | Diebold-Mariano tests with HAC errors and Holm correction |
 | Measured scale benchmark (INSERT vs batched vs COPY, index vs none) | Regime analysis, ablation, permutation importance |
@@ -69,7 +69,7 @@ Yahoo Finance (yfinance)                   synthetic generator (offline demo/tes
  live.py (nightly): freeze models -> forecast (immutable) -> score when the outcome arrives
 ```
 
-### The idea in four lines
+### Methodology
 1. Daily volatility proxy from the high-low range (Parkinson 1980): `pv = ln(H/L)^2 / (4 ln 2)`.
 2. Target: `y = log(mean pv over the next 5 trading days)`.
 3. Models see only the past; every test forecast comes from a model fitted on labels that were already fully known.
@@ -105,7 +105,7 @@ tests/                37 tests: validation rules, leakage, models/statistics, wa
 docs/                 EXECUTION.md (do this) | STUDY_GUIDE.md (understand this) | DESIGN.md (pre-registration)
 ```
 
-## Honest limitations
+## Limitations
 * **Survivorship bias:** the 20 stocks are large caps *today*.
 * One market, one volatility proxy (range-based, daily data), one horizon.
 * Stocks are correlated, so per-stock significance tests are not independent.
