@@ -1,0 +1,39 @@
+# Demo configuration: SYNTHETIC data in a separate database. Used by `make demo`
+# and the tests to prove the whole system works without internet access.
+# Results from this config are NOT real. Never put them on a resume.
+
+data_source: synthetic
+database_url: postgresql://volab:volab@localhost:5432/volab_demo
+tickers: [AAA.NS, BBB.NS, CCC.NS, DDD.NS, EEE.NS, FFF.NS]
+index_ticker: ^NSEI
+start_date: 2016-01-01
+
+synthetic:
+  end_date: 2025-12-31
+  seed: 7
+
+horizon: 5
+test_start: 2021-01-01
+refit_every: 63
+ewma_lambda: 0.94
+regime_quantile: 0.75
+benchmark_model: har
+
+models:
+  garch: true
+
+gbm_grid:
+  - {learning_rate: 0.05, max_depth: 3, max_iter: 150, min_samples_leaf: 50, l2_regularization: 1.0}
+  - {learning_rate: 0.10, max_depth: 3, max_iter: 100, min_samples_leaf: 100, l2_regularization: 1.0}
+
+validation:
+  extreme_move: 0.20
+  stale_run: 3
+
+fetch:
+  retries: 1
+  pause_seconds: 0
+
+results_dir: results_demo
+models_dir: models_demo
+raw_dir: data/raw_demo

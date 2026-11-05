@@ -1,0 +1,61 @@
+# Main configuration (REAL data from Yahoo Finance via yfinance).
+# Every path is relative to the project root. Edit, then COMMIT docs/DESIGN.md
+# BEFORE you run `volab evaluate` (see docs/DESIGN.md: pre-registration).
+
+data_source: yfinance            # yfinance | synthetic
+database_url: postgresql://volab:volab@localhost:5432/volab   # override with env DATABASE_URL
+
+# 20 liquid NSE large caps. Verify each symbol with `volab check-yfinance` first.
+# Survivorship bias: these are companies that are large TODAY. State this in your limitations.
+tickers:
+  - RELIANCE.NS
+  - TCS.NS
+  - INFY.NS
+  - HDFCBANK.NS
+  - ICICIBANK.NS
+  - HINDUNILVR.NS
+  - ITC.NS
+  - SBIN.NS
+  - BHARTIARTL.NS
+  - KOTAKBANK.NS
+  - LT.NS
+  - AXISBANK.NS
+  - ASIANPAINT.NS
+  - MARUTI.NS
+  - SUNPHARMA.NS
+  - TITAN.NS
+  - ULTRACEMCO.NS
+  - NESTLEIND.NS
+  - HCLTECH.NS
+  - POWERGRID.NS
+index_ticker: ^NSEI              # Nifty 50 index, used as the market-wide feature
+start_date: 2015-01-01
+
+# Modelling protocol (frozen in docs/DESIGN.md before running)
+horizon: 5                       # forecast the mean daily variance of the next 5 trading days
+test_start: 2021-01-01           # before = training/validation, from here = out-of-sample test
+refit_every: 21                  # walk-forward: refit models every 21 trading days
+ewma_lambda: 0.94                # RiskMetrics decay
+regime_quantile: 0.75            # high-vol regime = index 22d variance above training 75th percentile
+benchmark_model: har             # the model every other model is tested against
+
+models:
+  garch: true                    # optional; set false to skip (slower)
+
+gbm_grid:                        # chosen on a validation slice INSIDE the training window only
+  - {learning_rate: 0.05, max_depth: 3, max_iter: 200, min_samples_leaf: 50, l2_regularization: 1.0}
+  - {learning_rate: 0.05, max_depth: 4, max_iter: 300, min_samples_leaf: 50, l2_regularization: 1.0}
+  - {learning_rate: 0.10, max_depth: 3, max_iter: 150, min_samples_leaf: 100, l2_regularization: 1.0}
+  - {learning_rate: 0.03, max_depth: 5, max_iter: 400, min_samples_leaf: 100, l2_regularization: 5.0}
+
+validation:                      # data-quality thresholds
+  extreme_move: 0.20             # flag (never delete) daily moves larger than 20%
+  stale_run: 3                   # reject days 2..n of 3+ identical OHLC bars in a row
+
+fetch:
+  retries: 3
+  pause_seconds: 0.5
+
+results_dir: results
+models_dir: models
+raw_dir: data/raw
